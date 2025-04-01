@@ -33,8 +33,8 @@ if uploaded_file is not None:
 
             # ส่งไปยัง API
             response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpeg")})
-            st.write(f"Response Status Code: {response.status_code}")
-            st.write(f"Response JSON: {response.text}")
+           #st.write(f"Response Status Code: {response.status_code}")
+          # st.write(f"Response JSON: {response.text}")
 
             if response.status_code == 200:
                 result = response.json()
