@@ -28,7 +28,7 @@ if uploaded_file is not None:
     with st.spinner("กำลังประมวลผล..."):
         try:
             image_bytes = io.BytesIO()
-            image.save(image_bytes, format="PNG")
+            image.save(image_bytes, format="JPG")
             response = requests.post(API_URL, files={"file": image_bytes.getvalue()})
 
             # Debugging: แสดงสถานะ HTTP และข้อความจาก API
