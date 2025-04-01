@@ -13,7 +13,7 @@ API_URL = "https://outline.roboflow.com/anemia_pcm/2?api_key=9BCXeL5a6Vgvn8eqPSR
 
 st.title("Image Segmentation Viewer")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
-
+st.write("ตรวจจับpalpebral conjunctiva")
 uploaded_file = st.file_uploader("อัปโหลดรูปภาพ", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
@@ -35,7 +35,7 @@ if uploaded_file is not None:
             # ส่งไปยัง API
             response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpg")})
            #st.write(f"Response Status Code: {response.status_code}")
-            st.write(f"Response JSON: {response.text}")
+            #st.write(f"Response JSON: {response.text}")
 
             if response.status_code == 200:
                 result = response.json()
