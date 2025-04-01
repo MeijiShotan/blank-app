@@ -21,8 +21,8 @@ if uploaded_file is not None:
     st.image(image, caption="รูปที่อัปโหลด", use_column_width=True)
 
     # ลดขนาดภาพเพื่อให้ API รองรับ
-    max_size = (640, 640)
-    image.thumbnail(max_size)
+   # max_size = (640, 640)
+    #image.thumbnail(max_size)
 
     with st.spinner("กำลังประมวลผล..."):
         try:
