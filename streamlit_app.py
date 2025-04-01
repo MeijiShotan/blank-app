@@ -4,9 +4,13 @@ import io
 from PIL import Image
 
 # ตั้งค่า API ของ Roboflow
-ROBOFLOW_API_KEY = "your_api_key_here"
-PROJECT_ID = "your_project_id_here"
-MODEL_VERSION = "your_model_version_here"
+from inference_sdk import InferenceHTTPClient
+
+
+
+ROBOFLOW_API_KEY = "9BCXeL5a6Vgvn8eqPSR8"
+PROJECT_ID = "anemia_pcm"
+MODEL_VERSION = "2"
 API_URL = f"https://detect.roboflow.com/{PROJECT_ID}/{MODEL_VERSION}?api_key={ROBOFLOW_API_KEY}"
 
 st.title("Image Segmentation Viewer")
