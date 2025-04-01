@@ -18,21 +18,22 @@ uploaded_file = st.file_uploader("อัปโหลดรูปภาพ", type
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
+    width, height = image.size
+    if width > height:
+        image = image.rotate(90, expand=True)
     st.image(image, caption="รูปที่อัปโหลด", use_column_width=True)
-
+    
     # ลดขนาดภาพเพื่อให้ API รองรับ
-    max_size = (640, 640)
-    image.thumbnail(max_size)
 
     with st.spinner("กำลังประมวลผล..."):
         try:
             # แปลงภาพเป็น base64
             buffered = io.BytesIO()
-            image.save(buffered, format="PNG")
+            image.save(buffered, format="JPEG")
             base64_image = base64.b64encode(buffered.getvalue()).decode()
 
             # ส่งไปยัง API
-            response = requests.post(API_URL, files={"file": ("image.png", io.BytesIO(buffered.getvalue()), "image/png")})
+            response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpg")})
            #st.write(f"Response Status Code: {response.status_code}")
             st.write(f"Response JSON: {response.text}")
 
