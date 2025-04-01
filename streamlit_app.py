@@ -25,13 +25,15 @@ if uploaded_file is not None:
     image.thumbnail(max_size)
 
     # ส่งรูปไปยัง Roboflow API
-    with st.spinner("กำลังประมวลผล..."):
+  with st.spinner("กำลังประมวลผล..."):
         try:
-            image_bytes = io.BytesIO()
-            image.save(image_bytes, format="JPEG")
-            response = requests.post(API_URL, files={"file": image_bytes.getvalue()})
+            # แปลงภาพเป็น base64
+            buffered = io.BytesIO()
+            image.save(buffered, format="JPEG")
+            base64_image = base64.b64encode(buffered.getvalue()).decode()
 
-            # Debugging: แสดงสถานะ HTTP และข้อความจาก API
+            # ส่งไปยัง API
+            response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpeg")})
             st.write(f"Response Status Code: {response.status_code}")
             st.write(f"Response JSON: {response.text}")
 
@@ -40,13 +42,23 @@ if uploaded_file is not None:
                 predictions = result.get("predictions", [])
 
                 if predictions:
-                    segmented_image_url = predictions[0].get("image_url", "")
-                    if segmented_image_url:
-                        st.image(segmented_image_url, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
-                    else:
-                        st.write("API ไม่ได้ส่ง URL ของรูปที่ segment มา")
+                    # สร้าง mask เปล่า
+                    mask = Image.new("L", image.size, 0)  # L mode สำหรับ grayscale
+
+                    # วาด mask บนพื้นฐานของ points ใน predictions
+                    for pred in predictions:
+                        points = pred["points"]
+                        polygon = [(point["x"], point["y"]) for point in points]
+                        draw = ImageDraw.Draw(mask)
+                        draw.polygon(polygon, fill=255)  # วาดเส้น polygon ที่เติมสี 255 (ขาว)
+
+                    # Overlay mask บนภาพต้นฉบับ
+                    mask = ImageOps.invert(mask)  # ทำให้ mask ชัดขึ้น
+                    segmented_image = Image.composite(image, Image.new("RGB", image.size, (0, 255, 0)), mask)
+
+                    st.image(segmented_image, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
                 else:
-                    st.write("API ไม่พบวัตถุในภาพ")
+                    st.write("API ไม่พบวัตถุในภาพ หรือไม่ได้ส่ง mask กลับมา")
             else:
                 st.write("เกิดข้อผิดพลาดในการประมวลผล:", response.text)
         except Exception as e:
