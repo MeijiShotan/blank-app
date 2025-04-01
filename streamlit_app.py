@@ -20,6 +20,10 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="รูปที่อัปโหลด", use_column_width=True)
     
+    # ลดขนาดภาพให้ไม่เกิน 512x512
+    max_size = (512, 512)
+    image.thumbnail(max_size)
+
     # ส่งรูปไปยัง Roboflow API
     with st.spinner("กำลังประมวลผล..."):
         try:
