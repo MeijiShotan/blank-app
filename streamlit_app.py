@@ -11,9 +11,9 @@ PROJECT_ID = "anemia_pcm"
 MODEL_VERSION = "2025-03-31 11:26pm"
 API_URL = "https://outline.roboflow.com/anemia_pcm/2?api_key=9BCXeL5a6Vgvn8eqPSR8"
 
-st.title("Image Segmentation Viewer")
+st.title("Palpebral conjunctiva detecter")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
-st.write("ตรวจจับpalpebral conjunctiva")
+st.write("โดย ธรรญธร ไชยกายุต")
 uploaded_file = st.file_uploader("อัปโหลดรูปภาพ", type=["jpg", "png", "jpeg"])
 
 if uploaded_file is not None:
