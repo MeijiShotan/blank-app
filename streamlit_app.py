@@ -42,20 +42,19 @@ if uploaded_file is not None:
 
                 if predictions:
                     # สร้าง mask เปล่า
-                    mask = Image.new("L", image.size, 0)  # L mode สำหรับ grayscale
+                    mask = Image.new("RGBA", image.size, (0, 0, 0, 0))  # ใช้ RGBA สำหรับ transparency
 
                     # วาด mask บนพื้นฐานของ points ใน predictions
                     for pred in predictions:
                         points = pred["points"]
                         polygon = [(point["x"], point["y"]) for point in points]
                         draw = ImageDraw.Draw(mask)
-                        draw.polygon(polygon, fill=255)  # วาดเส้น polygon ที่เติมสี 255 (ขาว)
+                        draw.polygon(polygon, fill=(0, 255, 0, 128))  # วาดเส้น polygon สีเขียวที่มีความโปร่งใส
 
                     # Overlay mask บนภาพต้นฉบับ
-                    mask = ImageOps.invert(mask)  # ทำให้ mask ชัดขึ้น
-                    segmented_image = Image.composite(image, Image.new("RGB", image.size, (0, 255, 0)), mask)
+                    result_image = Image.alpha_composite(image.convert("RGBA"), mask)  # แปลงภาพให้เป็น RGBA แล้วรวมกับ mask
 
-                    st.image(segmented_image, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
+                    st.image(result_image, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
                 else:
                     st.write("API ไม่พบวัตถุในภาพ หรือไม่ได้ส่ง mask กลับมา")
             else:
