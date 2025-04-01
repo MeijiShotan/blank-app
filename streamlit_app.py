@@ -32,7 +32,7 @@ if uploaded_file is not None:
             base64_image = base64.b64encode(buffered.getvalue()).decode()
 
             # ส่งไปยัง API
-            response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpeg")})
+            response = requests.post(API_URL, files={"file": ("image.png", io.BytesIO(buffered.getvalue()), "image/png")})
            #st.write(f"Response Status Code: {response.status_code}")
             st.write(f"Response JSON: {response.text}")
 
