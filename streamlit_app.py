@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageOps
 ROBOFLOW_API_KEY = "9BCXeL5a6Vgvn8eqPSR8"
 PROJECT_ID = "anemia_pcm"
 MODEL_VERSION = "2025-03-31 11:26pm"
-API_URL = "https://outline.roboflow.com/anemia_pcm/2?api_key=9BCXeL5a6Vgvn8eqPSR8&confidence=40&overlap=30"
+API_URL = "https://outline.roboflow.com/anemia_pcm/2?api_key=9BCXeL5a6Vgvn8eqPSR8"
 
 st.title("Image Segmentation Viewer")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
@@ -28,7 +28,7 @@ if uploaded_file is not None:
         try:
             # แปลงภาพเป็น base64
             buffered = io.BytesIO()
-            image.save(buffered, format="JPEG")
+            image.save(buffered, format="PNG")
             base64_image = base64.b64encode(buffered.getvalue()).decode()
 
             # ส่งไปยัง API
