@@ -20,7 +20,7 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     width, height = image.size
     if width > height:
-        image = image.rotate(90, expand=True)
+        image = image.rotate(-90, expand=True)
     st.image(image, caption="รูปที่อัปโหลด", use_column_width=True)
     
     # ลดขนาดภาพเพื่อให้ API รองรับ
