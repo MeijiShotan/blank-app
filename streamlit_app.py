@@ -22,16 +22,28 @@ if uploaded_file is not None:
     
     # ส่งรูปไปยัง Roboflow API
     with st.spinner("กำลังประมวลผล..."):
-        image_bytes = io.BytesIO()
-        image.save(image_bytes, format="PNG")
-        response = requests.post(API_URL, files={"file": image_bytes.getvalue()})
-        
-        if response.status_code == 200:
-            result = response.json()
-            segmented_image_url = result.get("predictions", [{}])[0].get("image_url", "")
-            if segmented_image_url:
-                st.image(segmented_image_url, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
+        try:
+            image_bytes = io.BytesIO()
+            image.save(image_bytes, format="PNG")
+            response = requests.post(API_URL, files={"file": image_bytes.getvalue()})
+
+            # Debugging: แสดงสถานะ HTTP และข้อความจาก API
+            st.write(f"Response Status Code: {response.status_code}")
+            st.write(f"Response JSON: {response.text}")
+
+            if response.status_code == 200:
+                result = response.json()
+                predictions = result.get("predictions", [])
+
+                if predictions:
+                    segmented_image_url = predictions[0].get("image_url", "")
+                    if segmented_image_url:
+                        st.image(segmented_image_url, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
+                    else:
+                        st.write("API ไม่ได้ส่ง URL ของรูปที่ segment มา")
+                else:
+                    st.write("API ไม่พบวัตถุในภาพ")
             else:
-                st.write("ไม่พบผลลัพธ์")
-        else:
-            st.write("เกิดข้อผิดพลาดในการประมวลผล")
+                st.write("เกิดข้อผิดพลาดในการประมวลผล:", response.text)
+        except Exception as e:
+            st.write(f"เกิดข้อผิดพลาด: {e}")
