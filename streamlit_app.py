@@ -4,8 +4,6 @@ import io
 from PIL import Image
 
 # ตั้งค่า API ของ Roboflow
-from inference_sdk import InferenceHTTPClient
-
 
 
 ROBOFLOW_API_KEY = "9BCXeL5a6Vgvn8eqPSR8"
