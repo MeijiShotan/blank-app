@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 from PIL import Image, ImageDraw
 import io
 # ตั้งค่า API ของ Roboflow
@@ -15,7 +15,7 @@ st.title("Palpebral conjunctiva detecter")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
 st.write("โดย ธรรญธร ไชยกายุต")
 def load_model():
-    interpreter = tf.lite.Interpreter(model_path="M2.tflite")
+    interpreter = tflite.Interpreter(model_path="M2.tflite")
     interpreter.allocate_tensors()
     return interpreter
 
