@@ -16,7 +16,7 @@ st.title("Palpebral conjunctiva detecter")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
 st.write("โดย ธรรญธร ไชยกายุต")
 def load_model():
-    interpreter = tflite.Interpreter(model_path="M2.tflite")
+    interpreter = tflite.Interpreter(model_path="converted_model_M2.tflite")
     interpreter.allocate_tensors()
     return interpreter
 
