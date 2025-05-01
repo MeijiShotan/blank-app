@@ -16,9 +16,10 @@ st.title("Palpebral conjunctiva detecter")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
 st.write("โดย ธรรญธร ไชยกายุต")
 def load_model():
-    interpreter = tf.lite.Interpreter(model_path="M2.tflite")
+    interpreter = tflite.Interpreter(model_path="M2.tflite")
     interpreter.allocate_tensors()
     return interpreter
+
 
 def run_segmentation(image, interpreter):
     input_details = interpreter.get_input_details()
