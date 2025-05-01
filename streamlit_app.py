@@ -1,8 +1,9 @@
 import streamlit as st
 import numpy as np
-import tensorflow as tf
 from PIL import Image, ImageDraw
+import tflite_runtime.interpreter as tflite  
 import io
+import requests
 # ตั้งค่า API ของ Roboflow
 
 
