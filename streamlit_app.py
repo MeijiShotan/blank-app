@@ -42,6 +42,11 @@ def run_segmentation(image, interpreter):
 
 # === Upload Image ===
 uploaded_file = st.file_uploader("อัปโหลดรูปภาพ", type=["jpg", "png", "jpeg"])
+try:
+    with open("M2.tflite", "rb") as f:
+        st.success("โหลดไฟล์ .tflite สำเร็จ")
+except Exception as e:
+    st.error(f"ไม่สามารถโหลดโมเดลได้: {e}")
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
