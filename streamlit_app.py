@@ -1,8 +1,8 @@
 import streamlit as st
-import requests
+import numpy as np
+import tensorflow as tf
+from PIL import Image, ImageDraw
 import io
-import base64
-from PIL import Image, ImageDraw, ImageOps
 # ตั้งค่า API ของ Roboflow
 
 
