@@ -53,9 +53,9 @@ except Exception as e:
 try:
     interpreter = tflite.Interpreter(model_path="M2.tflite")
     interpreter.allocate_tensors()
-    print("โหลดสำเร็จ")
+    st.success("โหลดสำเร็จ")
 except Exception as e:
-    print(f"โหลดไม่สำเร็จ: {e}")
+    st.error(f"โหลดไม่สำเร็จ: {e}")
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
