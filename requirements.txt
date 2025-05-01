@@ -1,4 +1,5 @@
 streamlit
-Pillow
+tflite-runtime
 numpy
-tensorflow
+Pillow
+requests
