@@ -1,9 +1,8 @@
 import streamlit as st
-import numpy as np
-from PIL import Image, ImageDraw
-import tflite_runtime.interpreter as tflite  
-import io
 import requests
+import io
+import base64
+from PIL import Image, ImageDraw, ImageOps
 # ตั้งค่า API ของ Roboflow
 
 
@@ -15,69 +14,51 @@ API_URL = "https://outline.roboflow.com/anemia_pcm/2?api_key=9BCXeL5a6Vgvn8eqPSR
 st.title("Palpebral conjunctiva detecter")
 st.write("อัปโหลดรูปภาพเพื่อดูผลลัพธ์ของโมเดล")
 st.write("โดย ธรรญธร ไชยกายุต")
-def load_model():
-    interpreter = tflite.Interpreter(model_path="converted_model_M2.tflite")
-    interpreter.allocate_tensors()
-    return interpreter
-
-
-def run_segmentation(image, interpreter):
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
-    input_shape = input_details[0]['shape']  # e.g., [1, 224, 224, 3]
-    target_size = (input_shape[2], input_shape[1])
-
-    # Resize and normalize image
-    img_resized = image.resize(target_size)
-    input_data = np.expand_dims(np.array(img_resized, dtype=np.float32) / 255.0, axis=0)
-
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    interpreter.invoke()
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-
-    # Assume output is [1, H, W, 1] with values from 0-1 (binary mask)
-    mask = output_data[0, ..., 0]
-    mask = (mask > 0.5).astype(np.uint8) * 255
-
-    return Image.fromarray(mask).resize(image.size)
-
-# === Upload Image ===
 uploaded_file = st.file_uploader("อัปโหลดรูปภาพ", type=["jpg", "png", "jpeg"])
-try:
-    with open("M2.tflite", "rb") as f:
-        st.success("โหลดไฟล์ .tflite สำเร็จ")
-except Exception as e:
-    st.error(f"ไม่สามารถโหลดโมเดลได้: {e}")
-
-try:
-    interpreter = tflite.Interpreter(model_path="M2.tflite")
-    interpreter.allocate_tensors()
-    st.success("โหลดสำเร็จ")
-except Exception as e:
-    st.error(f"โหลดไม่สำเร็จ: {e}")
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert("RGB")
+    image = Image.open(uploaded_file)
     width, height = image.size
     if width > height:
         image = image.rotate(-90, expand=True)
-
     st.image(image, caption="รูปที่อัปโหลด", use_column_width=True)
+    
+    # ลดขนาดภาพเพื่อให้ API รองรับ
 
     with st.spinner("กำลังประมวลผล..."):
         try:
-            interpreter = load_model()
-            mask = run_segmentation(image, interpreter)
+            # แปลงภาพเป็น base64
+            buffered = io.BytesIO()
+            image.save(buffered, format="JPEG")
+            base64_image = base64.b64encode(buffered.getvalue()).decode()
 
-            # สร้าง RGBA mask สีเขียวโปร่งใส
-            green_mask = Image.new("RGBA", image.size, (0, 255, 0, 0))
-            mask_data = mask.convert("L").point(lambda x: 128 if x > 0 else 0)
-            green_mask.putalpha(mask_data)
+            # ส่งไปยัง API
+            response = requests.post(API_URL, files={"file": ("image.jpg", io.BytesIO(buffered.getvalue()), "image/jpg")})
+           #st.write(f"Response Status Code: {response.status_code}")
+            #st.write(f"Response JSON: {response.text}")
 
-            # ซ้อนภาพ
-            result_image = Image.alpha_composite(image.convert("RGBA"), green_mask)
+            if response.status_code == 200:
+                result = response.json()
+                predictions = result.get("predictions", [])
 
-            st.image(result_image, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
+                if predictions:
+                    # สร้าง mask เปล่า
+                    mask = Image.new("RGBA", image.size, (0, 0, 0, 0))  # ใช้ RGBA สำหรับ transparency
+
+                    # วาด mask บนพื้นฐานของ points ใน predictions
+                    for pred in predictions:
+                        points = pred["points"]
+                        polygon = [(point["x"], point["y"]) for point in points]
+                        draw = ImageDraw.Draw(mask)
+                        draw.polygon(polygon, fill=(0, 255, 0, 128))  # วาดเส้น polygon สีเขียวที่มีความโปร่งใส
+
+                    # Overlay mask บนภาพต้นฉบับ
+                    result_image = Image.alpha_composite(image.convert("RGBA"), mask)  # แปลงภาพให้เป็น RGBA แล้วรวมกับ mask
+
+                    st.image(result_image, caption="ผลลัพธ์จากโมเดล", use_column_width=True)
+                else:
+                    st.write("API ไม่พบวัตถุในภาพ หรือไม่ได้ส่ง mask กลับมา")
+            else:
+                st.write("เกิดข้อผิดพลาดในการประมวลผล:", response.text)
         except Exception as e:
-            st.error(f"เกิดข้อผิดพลาด: {e}")
+            st.write(f"เกิดข้อผิดพลาด: {e}")
